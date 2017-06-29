@@ -25,7 +25,8 @@ app.get('/v2/catalog', function(req, res) {
                                 type: 'object',
                                 properties: {
                                     test: {
-                                        $ref: 'http://json-schema.org/draft-04/schema#'
+                                        type: 'notatype',
+                                        default: 10
                                     }
                                 }
                             }
