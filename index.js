@@ -23,10 +23,19 @@ app.get('/v2/catalog', function(req, res) {
                      parameters: {
                         $schema: 'http://json-schema.org/draft-04/schema#',
                         type: 'object',
+                        definitions: {
+                           address: {
+                              type: 'object',
+                              properties: {
+                                 street_address: {
+                                    type: 'string'
+                                 }
+                              }
+                           }
+                        },
                         properties: {
-                           test: {
-                              type: 'notatype',
-                              default: 10
+                           address: {
+                              $ref: '#/definitions/address'
                            }
                         }
                      }
