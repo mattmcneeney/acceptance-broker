@@ -1,11 +1,25 @@
 var express = require('express'),
-app = express(),
-bodyParser = require('body-parser');
+   fs = require('fs'),
+   app = express(),
+   bodyParser = require('body-parser');
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.get('/v2/catalog', function(req, res) {
+   // Load schemas from file (if they exist)
+   var createServiceInstanceSchema = {},
+      updateServiceInstanceSchema = {},
+      createServiceBindingSchema = {};
+   if (fs.existsSync('create-service-instance-schema.json')) {
+      createServiceInstanceSchema = require('./create-service-instance-schema.json');
+   }
+   if (fs.existsSync('update-service-instance-schema.json')) {
+      updateServiceInstanceSchema = require('./update-service-instance-schema.json');
+   }
+   if (fs.existsSync('create-service-binding-schema.json')) {
+      createServiceBindingSchema = require('./create-service-binding-schema.json');
+   }
    res.json({
       services: [{
          name: 'acceptance-broker',
@@ -20,25 +34,15 @@ app.get('/v2/catalog', function(req, res) {
             schemas: {
                service_instance: {
                   create: {
-                     parameters: {
-                        $schema: 'http://json-schema.org/draft-04/schema#',
-                        type: 'object',
-                        definitions: {
-                           address: {
-                              type: 'object',
-                              properties: {
-                                 street_address: {
-                                    type: 'string'
-                                 }
-                              }
-                           }
-                        },
-                        properties: {
-                           address: {
-                              $ref: '#/definitions/address'
-                           }
-                        }
-                     }
+                     parameters: createServiceInstanceSchema
+                  },
+                  update: {
+                     parameters: updateServiceInstanceSchema
+                  }
+               },
+               service_binding: {
+                  create: {
+                     parameters: createServiceBindingSchema
                   }
                }
             }
