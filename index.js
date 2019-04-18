@@ -7,20 +7,7 @@ app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.get('/v2/catalog', function(req, res) {
-   // Load schemas from file (if they exist)
-   var createServiceInstanceSchema = {},
-      updateServiceInstanceSchema = {},
-      createServiceBindingSchema = {};
-   if (fs.existsSync('create-service-instance-schema.json')) {
-      createServiceInstanceSchema = require('./create-service-instance-schema.json');
-   }
-   if (fs.existsSync('update-service-instance-schema.json')) {
-      updateServiceInstanceSchema = require('./update-service-instance-schema.json');
-   }
-   if (fs.existsSync('create-service-binding-schema.json')) {
-      createServiceBindingSchema = require('./create-service-binding-schema.json');
-   }
-   res.json({
+   var data = {
       services: [{
          name: 'acceptance-broker',
          description: 'A simple service broker used for acceptance',
@@ -33,22 +20,27 @@ app.get('/v2/catalog', function(req, res) {
             free: true,
             schemas: {
                service_instance: {
-                  create: {
-                     parameters: createServiceInstanceSchema
-                  },
-                  update: {
-                     parameters: updateServiceInstanceSchema
-                  }
+                  create: {},
+                  update: {}
                },
                service_binding: {
-                  create: {
-                     parameters: createServiceBindingSchema
-                  }
+                  create: {}
                }
             }
          }]
       }]
-   });
+   };
+   // Load schemas from file
+   if (fs.existsSync('create-service-instance-schema.json')) {
+      data.services[0].plans[0].schemas.service_instance.create.parameters = require('./create-service-instance-schema.json');
+   }
+   if (fs.existsSync('update-service-instance-schema.json')) {
+      data.services[0].plans[0].schemas.service_instance.update.parameters = require('./update-service-instance-schema.json');
+   }
+   if (fs.existsSync('create-service-binding-schema.json')) {
+      data.services[0].plans[0].schemas.service_binding.create.parameters = require('./create-service-binding-schema.json');
+   }
+   res.json(data);
 });
 app.put('/v2/service_instances/:instance_id', function(req, res) {
    res.json({});
